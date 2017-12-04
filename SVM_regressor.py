@@ -171,8 +171,8 @@ accuracies = []
 msle = []
 raw_data = pd.read_csv('result1.dat')
 calc = calc_accuracy(raw_data.actual,raw_data.predicted)
-#mean_squared_log_error (raw_data.actual,raw_data.actual)    
-#msle.append(mean_squared_log_error (raw_data.actual,raw_data.predicted.abs()))
+mean_squared_log_error (raw_data.actual,raw_data.actual)    
+msle.append(mean_squared_log_error (raw_data.actual,raw_data.predicted.abs()))
 accuracies.append (calc)
 print "Accuracy is ",
 print accuracies
