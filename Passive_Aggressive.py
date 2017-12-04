@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[466]:
+# In[17]:
 
 
 import re
@@ -20,13 +20,14 @@ from scipy.sparse import hstack
 from sklearn.svm import SVR
 import numpy as np
 import nltk
+import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score,mean_squared_log_error
 from sklearn.model_selection import KFold
 
 
 # ## Download NLTK libraries if you don't have those.
 
-# In[433]:
+# In[2]:
 
 
 #nltk.download()
@@ -34,17 +35,17 @@ from sklearn.model_selection import KFold
 
 # ### Reading CSV in Pandas dataframe
 
-# In[436]:
+# In[3]:
 
 
-raw_data = pd.read_csv('StackOverflow2million_100000.csv')
+raw_data = pd.read_csv('./Data/data.csv')
 
 
 # # Preprocessing total data
 
 # ### Splitting Question titles
 
-# In[437]:
+# In[4]:
 
 
 stop = set(stopwords.words('english'))
@@ -62,7 +63,7 @@ raw_data['questions_title'] = raw_data['questions_title'].apply(lambda x:' '.joi
 
 # ### Splitting Question Tags
 
-# In[438]:
+# In[5]:
 
 
 #remove pipe and seperate tags
@@ -71,7 +72,7 @@ raw_data['questions_tags'] = raw_data['questions_tags'].apply(lambda x:' '.join(
 
 # ## Vectorizing the data and performing stemming
 
-# In[441]:
+# In[6]:
 
 
 stemmer = PorterStemmer()
@@ -102,7 +103,7 @@ train_x_que_title = vectorizer.fit_transform(raw_data.questions_title)
 train_y = raw_data['time'].tolist()
 
 
-# In[442]:
+# In[7]:
 
 
 print train_x_que_tag.shape
@@ -111,21 +112,57 @@ print train_x_que_title.shape
 
 # ### Combining Questions Tags and Question Titles feature vectors
 
-# In[443]:
+# In[8]:
 
 
 train_x =  hstack((train_x_que_tag, train_x_que_title))
 
 
-# In[444]:
+# In[9]:
 
 
 print train_x.shape
 
 
+# ## Evaluation Metrics
+
+# ### Accuracy Score
+
+# In[10]:
+
+
+def calc_accuracy(actual,predicted):
+    tc = 0
+    for ind in range(len(actual)):
+        if abs(fabs(actual[ind])-fabs(predicted[ind])) <= 36000:
+            tc = tc + 1
+    return float(tc)*100/len(actual)
+
+
+# ### Mean Squared Log Error
+
+# In[11]:
+
+
+def calc_mean_squared_log_error(actual,predicted):
+    return mean_squared_log_error(actual,predicted)
+
+
+# ### Writing results to file
+
+# In[12]:
+
+
+def writetofile(Y_test,result,i):
+    f = open("result" + str(i+1),"w")
+    for j in range(0,len(Y_test)):
+        f.write(str(Y_test[j]) + "," + str(result[j]) + "\n")
+    f.close()
+
+
 # ## PassiveAggressive Regression
 
-# In[453]:
+# In[13]:
 
 
 def PA_regressor(X_train,Y_train,X_test):
@@ -135,7 +172,7 @@ def PA_regressor(X_train,Y_train,X_test):
     return prediction_result
 
 
-# In[467]:
+# In[14]:
 
 
 accuracies = []
@@ -152,7 +189,7 @@ print "Mean Squared Log Error is : ",
 print msle
 
 
-# In[470]:
+# In[15]:
 
 
 print "Average Accuracy : ",
@@ -163,7 +200,7 @@ print sum(msle)/len(msle)
 
 # ### Plot 10 fold validation of accuracy and Mean Squared Log Error
 
-# In[468]:
+# In[18]:
 
 
 x = [1,2,3,4,5,6,7,8,9,10]
@@ -177,40 +214,4 @@ plt.bar(x, msle, align = 'center')
 plt.ylabel('Mean squared log error')
 plt.xlabel('10 folds')
 plt.show()
-
-
-# ## Evaluation Metrics
-
-# ### Accuracy Score
-
-# In[430]:
-
-
-def calc_accuracy(actual,predicted):
-    tc = 0
-    for ind in range(len(actual)):
-        if abs(fabs(actual[ind])-fabs(predicted[ind])) <= 36000:
-            tc = tc + 1
-    return float(tc)*100/len(actual)
-
-
-# ### Mean Squared Log Error
-
-# In[431]:
-
-
-def calc_mean_squared_log_error(actual,predicted):
-    return mean_squared_log_error(actual,predicted)
-
-
-# ### Writing results to file
-
-# In[330]:
-
-
-def writetofile(Y_test,result,i):
-    f = open("result" + str(i+1),"w")
-    for j in range(0,len(Y_test)):
-        f.write(str(Y_test[j]) + "," + str(result[j]) + "\n")
-    f.close()
 
